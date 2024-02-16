@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  postgresql:
+    container_name: my_postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: 
+      context: backend/
+    ports:
+      - "4000:4000"
+    environment:
+      DB_NAME: 'postgres'
+      DB_HOST: 'my_postgres'  
+      DB_PORT: 5432  
+      DB_USER: 'postgres'
+      DB_PASS: '1234'
+    depends_on:
+      - postgresql
+
+
+volumes:
+  postgres_data:
