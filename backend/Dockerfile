@@ -1,8 +1,14 @@
+# Base image
 FROM node:latest
 
-RUN npm i
+WORKDIR /api
 
-COPY .env .env
+COPY package*.json ./
+
+RUN npm install
+
 COPY . .
+
+EXPOSE 4000
 
 CMD ["npm", "run", "start:dev"]
