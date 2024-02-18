@@ -1,4 +1,4 @@
-export type TokensType = {accessToken: string, refreshToken: string}
+export type TokensResponseType = {accessToken: string, refreshToken: string}
 
 export type DataHeadersType = {
   "Authorization": string,
@@ -13,4 +13,8 @@ export type GuildType = {
     permissions: number,
     permissions_new: string,
     features: string[]
+}
+
+export interface ITokensDbType extends TokensResponseType {
+  userId: string
 }
