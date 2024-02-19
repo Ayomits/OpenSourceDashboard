@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApiDocumentationEntity } from './entities/api-documentation.entity';
 import { ApiDocumentationService } from './services/api-docs.service';
 import { CommandsDocumentationService } from './services/commands-docs.service';
+import { CommandsDocumentationController } from './controllers/commands-docs.controller';
 
 const entities = [ApiDocumentationEntity]
-const controllers = [ApiDocumentationController, CommandsDocumentationService]
+const controllers = [ApiDocumentationController, CommandsDocumentationController]
 const services = [ApiDocumentationService, CommandsDocumentationService]
 
 @Module({
