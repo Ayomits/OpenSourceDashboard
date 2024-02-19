@@ -39,7 +39,6 @@ import { SettingsModule } from './modules/settings/settings.module';
     // }),
 
     AuthModule,
-
     SettingsModule,
 
   ],

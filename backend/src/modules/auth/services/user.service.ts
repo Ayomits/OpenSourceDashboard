@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Oauth2TokensEntity } from '../entities/tokens.entity';
 import { DataHeadersType, GuildType, ITokensDbType, TokensResponseType } from '../types/discordApi.types';
 import axios from 'axios';
+import { measureTime } from '../../../common/decorators/measureTime.decorator';
 
 // Work with UserEntity and getting some data from 
 
@@ -25,14 +26,15 @@ export class UserService { // CRUD Service. Using only for auth and users contro
     return this.userRepository.findOne({where: { userId: userId }})
   }
 
+  @measureTime
   async findGuildData(userId: string) {
     try {
-      const tokens = await this.tokensRepository.findOne({where: { userId }})
+      const tokens = await this.tokensRepository.findOne({where: { userId }})      
       const  headers = {
         "Authorization": `Bearer ${tokens.accessToken}`,
         "Content-Type": "application/json"
       } as DataHeadersType
-      const guilds = await axios.get("https://discord.com/api/users/@me/guilds", { headers: headers}) as GuildType[]
+      const guilds = await (await axios.get("https://discord.com/api/users/@me/guilds", { headers: headers})).data as GuildType[]
       if (!guilds) {
         throw new BadRequestException("Something wrong... Maybe you not authorize")
       }
@@ -66,6 +68,7 @@ export class UserService { // CRUD Service. Using only for auth and users contro
     return this.userRepository.delete(userId)
   }
 
+  @measureTime
   private async sortGuilds(guildsData: GuildType[]): Promise<GuildType[]> {
     const guilds = []; 
     guildsData.forEach((guild: GuildType) => {

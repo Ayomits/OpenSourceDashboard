@@ -4,10 +4,15 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { UserService } from "../services/user.service";
+import { UserType } from "../types/user.types";
 
 @Injectable()
-export class IsAuth implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+export class IsYourServer implements CanActivate {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userService: UserService
+    ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
@@ -19,9 +24,15 @@ export class IsAuth implements CanActivate {
       if (bearer !== "Bearer" || !token) {
         return false;
       }
-      const user = await this.jwtService.verify(token);
+      const user = await this.jwtService.verify(token) as UserType
       if (!user) {
         return false;
+      }
+      const guildsData = await this.userService.findGuildData(user.userId)
+      const guildId = req.body.guildId
+      const guild = guildsData.find(guild => guild.id === guildId)
+      if (!guild) {
+        return false
       }
       req.user = user;
       return true;

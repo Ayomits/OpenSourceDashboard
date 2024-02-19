@@ -5,8 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Oauth2TokensEntity } from './entities/tokens.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { UserController } from './controllers/user.controller';
 import { UserService } from './services/user.service';
+import { IsAuth } from './guards/isAuth.guard';
+import { IsYourServer } from './guards/isYourServer.guard';
 
 const entities = [Oauth2TokensEntity, UserEntity]
 
@@ -21,8 +22,8 @@ const entities = [Oauth2TokensEntity, UserEntity]
       }
     })
   ],
-  providers: [AuthService, UserService],
-  controllers: [AuthController, UserController],
+  providers: [AuthService, UserService, IsAuth, IsYourServer],
+  controllers: [AuthController],
   exports: [AuthModule, TypeOrmModule, JwtModule]
 })
 export class AuthModule {}
