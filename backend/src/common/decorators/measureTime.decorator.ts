@@ -7,7 +7,7 @@ export function measureTime(target: any, propertyKey: string, descriptor: Proper
       const result = originalMethod.apply(this, args);
 
       const endTime = performance.now();
-      console.log(`Method ${propertyKey} took ${endTime - startTime} milliseconds`);
+      console.log(`Method ${propertyKey} took ${(endTime - startTime).toFixed(2)} seconds`);
 
       return result;
   };
