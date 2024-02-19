@@ -1,9 +1,8 @@
+import { DiscordCommonEntity } from 'src/common/entities/common.entity';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
-export class Oauth2TokensEntity {
-  @PrimaryColumn()
-  userId: string
+export class Oauth2TokensEntity extends DiscordCommonEntity {
 
   @Column()
   accessToken: string
