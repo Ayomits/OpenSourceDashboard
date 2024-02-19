@@ -45,7 +45,6 @@ export class AuthService {
       const tokensInDb = await this.userService.createTokens({userId: user.userId, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken})
       return {
         "accessToken": jwt,
-        "discordTokens": tokensInDb
       }
     } catch(err) {
       throw new BadRequestException(err)
