@@ -18,7 +18,7 @@ const entities = [Oauth2TokensEntity, UserEntity]
     JwtModule.register({
       secret: process.env.SECRET_KEY || "SECRET KEY",
       signOptions: {
-        expiresIn: "48h"
+        expiresIn: "24h"
       }
     })
   ],
