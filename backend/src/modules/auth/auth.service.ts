@@ -39,10 +39,10 @@ export class AuthService {
         "Authorization": `Bearer ${tokens.accessToken}`,
         "Content-Type": "application/json"
       } as DataHeadersType
-      const userData = (await this.fetchUserData(headers)).data
-      const user = await this.userService.createUser({userId: userData.id, avatar: userData.avatar, username: userData.username})
-      const jwt = await this.generateJwt(user)
-      const tokensInDb = await this.userService.createTokens({userId: user.userId, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken})
+      const userData = (await this.fetchUserData(headers)).data // UserData from discord API
+      const user = await this.userService.createOrFindUser({userId: userData.id, avatar: userData.avatar, username: userData.username}) // create or find user
+      const jwt = await this.generateJwt(user) // generate JWT token by UserEntity
+      await this.userService.createTokens({userId: user.userId, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken}) // save discord API tokens
       return {
         "accessToken": jwt,
       }
@@ -77,14 +77,13 @@ export class AuthService {
     return await axios.get("https://discord.com/api/users/@me", { headers: headers })
   }
 
-  private async generateJwt(user: UserEntity) {
+  async generateJwt(user: UserEntity) {
     const payload = {
       "userId": user.userId,
       "username": user.username,
+      "isAdmin": user.isAdmin,
       "avatar": user.avatar
     }
-    
-    return this.jwtService.sign(payload); // null
-    
+    return this.jwtService.sign(payload); 
   }
 }

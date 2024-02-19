@@ -10,5 +10,8 @@ export class UserEntity {
 
   @Column()
   avatar: string
+
+  @Column({default: false})
+  isAdmin: boolean
 }
 

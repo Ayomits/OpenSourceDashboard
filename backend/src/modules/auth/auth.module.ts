@@ -8,8 +8,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserService } from './services/user.service';
 import { IsAuth } from './guards/isAuth.guard';
 import { IsYourServer } from './guards/isYourServer.guard';
+import { UsersController } from './controllers/user.controller';
+import { IsAdmin } from './guards/isAdmin.guard';
 
 const entities = [Oauth2TokensEntity, UserEntity]
+const guards = [IsAuth, IsYourServer, IsAdmin]
+const services = [AuthService, UserService]
+const controllers = [AuthController, UsersController]
+
 
 @Module({
   imports: [
@@ -22,8 +28,8 @@ const entities = [Oauth2TokensEntity, UserEntity]
       }
     })
   ],
-  providers: [AuthService, UserService, IsAuth, IsYourServer],
-  controllers: [AuthController],
+  providers: [...guards, ...services],
+  controllers: [...controllers],
   exports: [AuthModule, TypeOrmModule, JwtModule]
 })
 export class AuthModule {}
