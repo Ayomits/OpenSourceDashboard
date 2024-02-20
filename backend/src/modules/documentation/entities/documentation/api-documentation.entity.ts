@@ -1,6 +1,6 @@
 import { DocumentationCommonEntity } from "src/common/entities/common.entity";
 import { Column } from "typeorm";
-import { QueryType } from "../types/types";
+import { QueryType } from "../../types/types";
 
 export class ApiDocumentationEntity extends DocumentationCommonEntity {
 
