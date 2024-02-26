@@ -1,1 +1,0 @@
-export type QueryType = "POST" | "GET" | "PATH" | "DELETE"

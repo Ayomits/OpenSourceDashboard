@@ -6,9 +6,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { AuthModule } from './modules/auth/auth.module'; // Auth without passport. It's discord api + jwt
-import { SettingsModule } from './modules/settings/settings.module';
-import { DocumentationModule } from './modules/documentation/documentation.module';
-
+import { CommandsModule } from './modules/CRUD/commands/commands.module';
 
 @Module({
   imports: [
@@ -25,6 +23,7 @@ import { DocumentationModule } from './modules/documentation/documentation.modul
         password: configService.getOrThrow("DB_PASS"),
         port: Number(configService.getOrThrow("DB_PORT")),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
+        migrations: [__dirname + `/migrations/*.{.ts,.js}`],
         autoLoadEntities: true,
         synchronize: true,
         migrationsRun: true,
@@ -41,9 +40,7 @@ import { DocumentationModule } from './modules/documentation/documentation.modul
     // }),
 
     AuthModule,
-    SettingsModule,
-    DocumentationModule,
-
+    CommandsModule
   ],
   providers: [],
 })
