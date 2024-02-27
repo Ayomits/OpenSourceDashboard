@@ -4,37 +4,39 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UserService } from "../services/user.service";
-import { UserType } from "../types/user.types";
+import { ExtendedRequest } from "../types/request.types";
+import { IsAuth } from "./isAuth.guard";
+import { TokensService } from "../services/tokens.service";
+import { measureTime } from "src/common/decorators/measureTime.decorator";
 
 @Injectable()
 export class IsYourServer implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService
+    private readonly tokensService: TokensService
     ) {}
 
+  @measureTime
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest() as ExtendedRequest
 
     try {
-      const auth = req.headers.authorization as string;
-      const bearer = auth.split(" ")[0];
-      const token = auth.split(" ")[1];
-      if (bearer !== "Bearer" || !token) {
-        return false;
-      }
-      const user = await this.jwtService.verify(token) as UserType
-      if (!user) {
-        return false;
-      }
-      const guildsData = await this.userService.findGuildData(user.userId)
-      const guildId = req.body.guildId
-      const guild = guildsData.find(guild => guild.id === guildId)
-      if (!guild) {
+      const isAuth = await new IsAuth(this.jwtService).canActivate(context)
+      if (!isAuth) {
+        console.log(`here0`);
         return false
       }
-      req.user = user;
+      const guildsData = await this.tokensService.findGuildData(req.user.userId)
+      if (!guildsData) {
+        console.log(`here1`);
+        return false
+      }
+      const guildId = req.body.guildId || req.params.guildId
+      const guild = guildsData.find(guild => guild.id === guildId)
+      if (!guild) {
+        console.log(`here2`);
+        return false
+      }
       return true;
     } catch (err) {
       return false;

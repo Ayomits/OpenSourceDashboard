@@ -4,13 +4,14 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { ExtendedRequest } from "../types/request.types";
 
 @Injectable()
 export class IsAuth implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest() as ExtendedRequest
 
     try {
       const auth = req.headers.authorization as string;

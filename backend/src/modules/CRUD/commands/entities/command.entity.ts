@@ -4,17 +4,15 @@ import { CategoryCommandEntity } from "./category.entity";
 
 @Entity()
 export class CommandEntity extends DocumentationCommonEntity {
-
   @Column()
   name: string;
 
   @Column()
   description: string;
 
-  @Column({ type: 'json', default: [] })
+  @Column({ type: "json", default: [] })
   aliases: string[];
 
-  @ManyToOne(() => CategoryCommandEntity, category => category.commands)
-  category: CategoryCommandEntity; 
-
+  @ManyToOne(() => CategoryCommandEntity, (category) => category.commands)
+  category: CategoryCommandEntity;
 }

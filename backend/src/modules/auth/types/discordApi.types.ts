@@ -11,8 +11,6 @@ export type GuildType = {
     icon: string,
     owner: boolean,
     permissions: number,
-    permissions_new: string,
-    features: string[]
 }
 
 export interface ITokensDbType extends TokensResponseType {

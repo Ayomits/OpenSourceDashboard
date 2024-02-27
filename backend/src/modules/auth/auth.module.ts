@@ -10,10 +10,11 @@ import { IsAuth } from './guards/isAuth.guard';
 import { IsYourServer } from './guards/isYourServer.guard';
 import { UsersController } from './controllers/user.controller';
 import { IsAdmin } from './guards/isAdmin.guard';
+import { TokensService } from './services/tokens.service';
 
 const entities = [Oauth2TokensEntity, UserEntity]
 const guards = [IsAuth, IsYourServer, IsAdmin]
-const services = [AuthService, UserService]
+const services = [AuthService, UserService, TokensService]
 const controllers = [AuthController, UsersController]
 
 
@@ -30,6 +31,6 @@ const controllers = [AuthController, UsersController]
   ],
   providers: [...guards, ...services],
   controllers: [...controllers],
-  exports: [AuthModule, TypeOrmModule, JwtModule]
+  exports: [AuthModule, TypeOrmModule, JwtModule, ...services]
 })
 export class AuthModule {}

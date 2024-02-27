@@ -2,8 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ModSettingsService } from './mod-settings.service';
 import { CreateModSettingDto } from './dto/create-mod-setting.dto';
 import { UpdateModSettingDto } from './dto/update-mod-setting.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('mod-settings')
+@ApiTags(`mod-settings`)
 export class ModSettingsController {
   constructor(private readonly modSettingsService: ModSettingsService) {}
 

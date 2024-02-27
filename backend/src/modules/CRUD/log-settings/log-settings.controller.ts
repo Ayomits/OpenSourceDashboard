@@ -1,34 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { LogSettingsService } from './log-settings.service';
 import { CreateLogSettingDto } from './dto/create-log-setting.dto';
 import { UpdateLogSettingDto } from './dto/update-log-setting.dto';
+import { IsYourServer } from 'src/modules/auth/guards/isYourServer.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('log-settings')
+@ApiTags(`log-settings`)
 export class LogSettingsController {
   constructor(private readonly logSettingsService: LogSettingsService) {}
 
   @Post()
-  create(@Body() createLogSettingDto: CreateLogSettingDto) {
-    return this.logSettingsService.create(createLogSettingDto);
+  create(@Body() createLogSettingDto: CreateLogSettingDto) {}
+
+  @Get(':guildId/all')
+  @UseGuards(IsYourServer)
+  find(@Param('guildId') guildId: string) {
+    return `hello world`
   }
 
-  @Get()
-  findAll() {
-    return this.logSettingsService.findAll();
-  }
+  @Patch(':guildId')
+  @UseGuards(IsYourServer)
+  update(@Param('id') guildID: string, @Body() updateLogSettingDto: UpdateLogSettingDto) {}
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.logSettingsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLogSettingDto: UpdateLogSettingDto) {
-    return this.logSettingsService.update(+id, updateLogSettingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.logSettingsService.remove(+id);
-  }
+  @Delete(':guildId')
+  @UseGuards(IsYourServer)
+  remove(@Param('id') guildID: string) {}
 }

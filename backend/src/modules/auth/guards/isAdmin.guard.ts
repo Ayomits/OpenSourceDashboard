@@ -4,26 +4,24 @@ import {
   Injectable,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { ExtendedRequest } from "../types/request.types";
+import { IsAuth } from "./isAuth.guard";
 
 @Injectable()
 export class IsAdmin implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest() as ExtendedRequest
 
     try {
-      const auth = req.headers.authorization as string;
-      const bearer = auth.split(" ")[0];
-      const token = auth.split(" ")[1];
-      if (bearer !== "Bearer" || !token) {
+      const isAuth = new IsAuth(this.jwtService).canActivate(context)
+      if (!isAuth) {
+        return false
+      }
+      if (req.user.isAdmin) {
         return false;
       }
-      const user = await this.jwtService.verify(token);
-      if (!user || !user.isAdmin) {
-        return false;
-      }
-      req.user = user;
       return true;
     } catch (err) {
       return false;
