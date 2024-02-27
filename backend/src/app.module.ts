@@ -7,6 +7,9 @@ import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { AuthModule } from './modules/auth/auth.module'; // Auth without passport. It's discord api + jwt
 import { CommandsModule } from './modules/CRUD/commands/commands.module';
+import { LogSettingsModule } from './modules/CRUD/log-settings/log-settings.module';
+import { ModSettingsModule } from './modules/CRUD/mod-settings/mod-settings.module';
+
 
 @Module({
   imports: [
@@ -40,7 +43,9 @@ import { CommandsModule } from './modules/CRUD/commands/commands.module';
     // }),
 
     AuthModule,
-    CommandsModule
+    CommandsModule,
+    LogSettingsModule,
+    ModSettingsModule
   ],
   providers: [],
 })
