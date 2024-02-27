@@ -13,6 +13,9 @@ export class CommandEntity extends DocumentationCommonEntity {
   @Column({ type: "json", default: [] })
   aliases: string[];
 
+  @Column({default: ``})
+  example: string
+
   @ManyToOne(() => CategoryCommandEntity, (category) => category.commands)
   category: CategoryCommandEntity;
 }

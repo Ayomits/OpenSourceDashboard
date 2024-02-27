@@ -4,6 +4,8 @@ import { CreateCommandDto } from './dto/command/create-command.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { IsAdmin } from 'src/modules/auth/guards/isAdmin.guard';
 
+// Only Admins can add new Commands or something
+
 @Controller('commands')
 @ApiTags("commands-documentation")
 export class CommandsController {
@@ -21,8 +23,13 @@ export class CommandsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commandsService.findOne(+id);
+  findById(@Param('id') id: string) {
+    return this.commandsService.findById(+id);
+  }
+
+  @Get('/category/:categoryId')
+  findByCategory(@Param(`categoryId`) categoryId: string) {
+    return this.commandsService.findByCategory(+categoryId)
   }
 
   @Patch(':id')

@@ -6,6 +6,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { LogSettingEntity } from "./entities/log-setting.entity";
 import { UserService } from "src/modules/auth/services/user.service";
 
+const entities = [LogSettingEntity]
+const services = [LogSettingsService]
+const controllers = [LogSettingsController]
+
 @Module({
   imports: [AuthModule, TypeOrmModule.forFeature([LogSettingEntity])],
   controllers: [LogSettingsController],

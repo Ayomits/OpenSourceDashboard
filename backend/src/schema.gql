@@ -1,0 +1,69 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CommandsGql {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateCommandsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateLogSettingsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateModSettingsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type LogSettingsGql {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type ModSettingsGql {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Mutation {
+  createCommandsGql(createCommandsGqlInput: CreateCommandsGqlInput!): CommandsGql!
+  createLogSettingsGql(createLogSettingsGqlInput: CreateLogSettingsGqlInput!): LogSettingsGql!
+  createModSettingsGql(createModSettingsGqlInput: CreateModSettingsGqlInput!): ModSettingsGql!
+  removeCommandsGql(id: Int!): CommandsGql!
+  removeLogSettingsGql(id: Int!): LogSettingsGql!
+  removeModSettingsGql(id: Int!): ModSettingsGql!
+  updateCommandsGql(updateCommandsGqlInput: UpdateCommandsGqlInput!): CommandsGql!
+  updateLogSettingsGql(updateLogSettingsGqlInput: UpdateLogSettingsGqlInput!): LogSettingsGql!
+  updateModSettingsGql(updateModSettingsGqlInput: UpdateModSettingsGqlInput!): ModSettingsGql!
+}
+
+type Query {
+  commandsGql(id: Int!): CommandsGql!
+  logSettingsGql(id: Int!): LogSettingsGql!
+  modSettingsGql(id: Int!): ModSettingsGql!
+}
+
+input UpdateCommandsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateLogSettingsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateModSettingsGqlInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}

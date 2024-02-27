@@ -6,11 +6,11 @@ export class CreateLogSettingDto {
   guildId: string
   
   @IsString()
-  chat: string
+  chatLogChannel?: string
 
   @IsString()
-  voice: string
+  voiceLogChannel?: string
 
   @IsString()
-  economy: string
+  economyLogChannel?: string
 }

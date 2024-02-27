@@ -18,7 +18,7 @@ export class CommandsService {
     if (existedCommand) {
       throw new BadRequestException(`This command already exists`)
     }
-    const category = await this.categoryService.findOne(createCommandDto.categoryID)
+    const category = await this.categoryService.findById(createCommandDto.categoryID)
     if (!category) {
       throw new BadRequestException(`Category with this name doesn't exist`)
     }
@@ -31,16 +31,24 @@ export class CommandsService {
     return this.commandRepository.find({relations: ['category']})
   }
 
-  async findOne(id: number) {
+  async findById(id: number) {
     return this.commandRepository.findOne({where: { id } ,relations: ['category']})
   }
 
+  async findByCategory(categoryID: number) {
+    const category = await this.categoryService.findById(categoryID)
+    if (!category) {
+      throw new BadRequestException(`This category doesn't exist`)
+    }
+    return this.commandRepository.findOne({where: {category}})
+  }
+
   async update(id: number, updateCommandDto: CreateCommandDto) {
-    const existedCommand = await this.findOne(id)
+    const existedCommand = await this.findById(id)
     if (!existedCommand){
       throw new BadRequestException(`This command doesn't exist`)
     }
-    const category = await this.categoryService.findOne(updateCommandDto.categoryID)
+    const category = await this.categoryService.findById(updateCommandDto.categoryID)
     if (!category) {
       throw new BadRequestException(`Category with this id doesn't exist`)
     }
@@ -50,7 +58,7 @@ export class CommandsService {
       aliases: updateCommandDto.aliases,
       category: category
     })
-    const newCommand = await this.findOne(id)
+    const newCommand = await this.findById(id)
     return {
       oldCommand: existedCommand,
       newCommand: newCommand
@@ -58,7 +66,7 @@ export class CommandsService {
   }
 
   async remove(id: number) {
-    const existedCommand = await this.findOne(id)
+    const existedCommand = await this.findById(id)
     if (!existedCommand){
       throw new BadRequestException(`This command doesn't exist`)
     }

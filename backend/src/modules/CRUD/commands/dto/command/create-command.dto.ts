@@ -12,6 +12,9 @@ export class CreateCommandDto {
   @IsString({each: true})
   aliases?: string[]
 
+  @IsString()
+  example: string
+
   @IsNumber()
   categoryID: number
 }

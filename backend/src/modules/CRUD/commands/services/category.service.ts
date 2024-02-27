@@ -24,7 +24,7 @@ export class CategoryService {
     return await this.categoryRepository.find({relations: ['commands']})
   }
 
-  async findOne(id: number) {
+  async findById(id: number) {
     const category = await this.categoryRepository.findOne({where: {id: id}, relations: ['commands']})
     return category
   }
@@ -35,12 +35,12 @@ export class CategoryService {
   }
 
   async update(id: number, createCategoryDto: CreateCategoryDto) {
-    const existedCategory = await this.findOne(id)
+    const existedCategory = await this.findById(id)
     if (!existedCategory) {
       throw new BadRequestException("This category doesn't exists")
     }
     await this.categoryRepository.update(id, createCategoryDto)
-    const newCategory = await this.findOne(id)
+    const newCategory = await this.findById(id)
     return {
       oldCategory: existedCategory,
       newCategory: newCategory
@@ -48,7 +48,7 @@ export class CategoryService {
   }
 
   async remove(id: number) {
-    const existedCategory = await this.findOne(id)
+    const existedCategory = await this.findById(id)
     if (!existedCategory) {
       throw new BadRequestException("This category doesn't exists")
     }

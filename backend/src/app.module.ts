@@ -7,8 +7,12 @@ import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { AuthModule } from './modules/auth/auth.module'; // Auth without passport. It's discord api + jwt
 import { CommandsModule } from './modules/CRUD/commands/commands.module';
-import { LogSettingsModule } from './modules/CRUD/log-settings/log-settings.module';
-import { ModSettingsModule } from './modules/CRUD/mod-settings/mod-settings.module';
+import { LogSettingsModule } from './modules/CRUD/settings/log-settings/log-settings.module';
+import { ModSettingsModule } from './modules/CRUD/settings/mod-settings/mod-settings.module';
+import { CommandsGqlModule } from './modules/GraphQL/commands-gql/commands-gql.module';
+import { LogSettingsGqlModule } from './modules/GraphQL//log-settings-gql/log-settings-gql.module';
+import { ModSettingsGqlModule } from './modules/GraphQL/mod-settings-gql/mod-settings-gql.module';
+
 
 
 @Module({
@@ -34,18 +38,20 @@ import { ModSettingsModule } from './modules/CRUD/mod-settings/mod-settings.modu
       inject: [ConfigService],
     }),
 
-    // GraphQLModule.forRoot<ApolloDriverConfig>({
-    //   driver: ApolloDriver, 
-    //   playground: true,
-    //   autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-    //   sortSchema: true,
-    //   plugins: [ApolloServerPluginLandingPageLocalDefault()]
-    // }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver, 
+      playground: true,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      sortSchema: true,
+    }),
 
     AuthModule,
     CommandsModule,
     LogSettingsModule,
-    ModSettingsModule
+    ModSettingsModule,
+    CommandsGqlModule,
+    LogSettingsGqlModule,
+    ModSettingsGqlModule
   ],
   providers: [],
 })
