@@ -3,35 +3,72 @@ import { CreateLogSettingDto } from "./dto/create-log-setting.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { LogSettingEntity } from "./entities/log-setting.entity";
 import { Repository } from "typeorm";
+import { Cache } from "@nestjs/cache-manager";
 
 // Working with LogSettingsEntity
 // Universal CRUD service
 
 @Injectable()
 export class LogSettingsService {
+  ttl: number = 60_000;
+
   constructor(
     @InjectRepository(LogSettingEntity)
-    private repository: Repository<LogSettingEntity>
+    private repository: Repository<LogSettingEntity>,
+    private readonly cacheManager: Cache
   ) {}
 
-  async createOrUpdate(createLogSettingDto: CreateLogSettingDto) {
-    const existedSettings = await this.findOne(createLogSettingDto.guildId);
-    if (existedSettings) {
-      await this.update(createLogSettingDto.guildId, createLogSettingDto);
-      const newSettings = await this.findOne(createLogSettingDto.guildId);
-      return {
-        oldSettings: existedSettings,
-        newSettings: newSettings,
-      };
+  async create(dto: CreateLogSettingDto) {
+    const key = `log-settings-${dto.guildId}`;
+    const existedSettings = await this.findInCache(key) || await this.findOne(dto.guildId);
+  
+    if (!existedSettings) {
+      const query = this.repository.create(dto);
+      const newSettings = await this.repository.save(query);
+      await this.cacheManager.set(key, newSettings, this.ttl);
+      return newSettings;
     }
-    const query = this.repository.create(createLogSettingDto);
-    return await this.repository.save(query);
+    throw new BadRequestException(`This settings already exists. Use /update endpoint`)
   }
 
-  async findOne(guildId: string) {
+  async update(guildId: string, dto: CreateLogSettingDto) {
+    const key = `log-settings-${guildId}`;
+    
+    const existedSettings = await this.findInCache(key) || await this.findOne(guildId);
+    if (!existedSettings) {
+      throw new BadRequestException(`This server hasn't settings`)
+    }
+    await this.repository.update(guildId, {
+      chatLogChannel: dto.chatLogChannel,
+      voiceLogChannel: dto.voiceLogChannel,
+      economyLogChannel: dto.economyLogChannel
+    })
+    const newSettings = await this.repository.findOne({where: {guildId: guildId}})
+    
+    await this.cacheManager.set(key, newSettings, this.ttl);
+  
+    return {
+      oldSettings: existedSettings,
+      newSettings: newSettings,
+    };
+  }
+  
+
+  async findInCache(key: string) {
+    return await this.cacheManager.get(key);
+  }
+
+  async findOne(guildId: string): Promise<LogSettingEntity> {
+    const settingsInCache = await this.findInCache(`log-settings-${guildId}`);
+
+    if (settingsInCache) {
+      return settingsInCache as LogSettingEntity;
+    }
+
     const settings = await this.repository.findOne({
       where: { guildId: guildId },
     });
+    await this.cacheManager.set(`log-settings-${guildId}`, settings, this.ttl);
     return settings;
   }
 
@@ -43,7 +80,5 @@ export class LogSettingsService {
     return await this.repository.delete(guildId);
   }
 
-  private async update(guildId: string, dto: CreateLogSettingDto) {
-    return await this.repository.update(guildId, dto);
-  }
+  
 }

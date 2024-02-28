@@ -8,6 +8,7 @@ import {
   ITokensDbType,
 } from "../types/discordApi.types";
 import axios from "axios";
+import { Cache } from "@nestjs/cache-manager";
 
 // Working with Oauth2TokensEntity
 
@@ -15,7 +16,8 @@ import axios from "axios";
 export class TokensService {
   constructor(
     @InjectRepository(Oauth2TokensEntity)
-    private tokensRepository: Repository<Oauth2TokensEntity>
+    private tokensRepository: Repository<Oauth2TokensEntity>,
+    private readonly cacheManager: Cache,
   ) {}
 
   async findTokens(userId: string) {
@@ -42,6 +44,10 @@ export class TokensService {
   }
 
   async findGuildData(userId: string, count: number = 0) {
+    const dataInCache = await this.cacheManager.get(`user-${userId}`)
+    if (dataInCache) {
+      return dataInCache
+    }
     if (count < 3) {
       try {
         const tokens = await this.tokensRepository.findOne({
@@ -57,8 +63,8 @@ export class TokensService {
             "Something wrong... Maybe you are not authorized"
           );
         }
-
-        return await this.sortGuilds(guilds);
+        const sortedGuilds = await this.sortGuilds(guilds);
+        return sortedGuilds
       } catch (err) {
         return this.retryFunction(() => this.findGuildData(userId, count + 1));
       }

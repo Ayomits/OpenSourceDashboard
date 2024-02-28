@@ -4,15 +4,15 @@ import { LogSettingsController } from "./log-settings.controller";
 import { AuthModule } from "src/modules/auth/auth.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { LogSettingEntity } from "./entities/log-setting.entity";
-import { UserService } from "src/modules/auth/services/user.service";
 
 const entities = [LogSettingEntity]
 const services = [LogSettingsService]
 const controllers = [LogSettingsController]
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([LogSettingEntity])],
-  controllers: [LogSettingsController],
-  providers: [LogSettingsService],
+  imports: [AuthModule, TypeOrmModule.forFeature(entities)],
+  controllers: [...controllers],
+  providers: [...services],
+  exports: [TypeOrmModule]
 })
 export class LogSettingsModule {}

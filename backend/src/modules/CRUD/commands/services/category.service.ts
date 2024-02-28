@@ -11,7 +11,6 @@ export class CategoryService {
 
   ) {}
 
-
   async create(createCategoryDto: CreateCategoryDto) {
     const existedCategory = await this.findByName(createCategoryDto.name)
     if (existedCategory) {

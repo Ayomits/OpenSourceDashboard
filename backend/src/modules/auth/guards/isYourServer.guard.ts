@@ -1,42 +1,39 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ExtendedRequest } from "../types/request.types";
 import { IsAuth } from "./isAuth.guard";
 import { TokensService } from "../services/tokens.service";
 import { measureTime } from "src/common/decorators/measureTime.decorator";
+import { Cache } from "@nestjs/cache-manager";
 
 @Injectable()
 export class IsYourServer implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly tokensService: TokensService
-    ) {}
+    private readonly tokensService: TokensService,
+    private readonly cacheManager: Cache
+  ) {}
 
-  @measureTime
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest() as ExtendedRequest
+    const req = context.switchToHttp().getRequest() as ExtendedRequest;
 
     try {
-      const isAuth = await new IsAuth(this.jwtService).canActivate(context)
+      const isAuth = await new IsAuth(this.jwtService).canActivate(context);
       if (!isAuth) {
-        console.log(`here0`);
-        return false
+        return false;
       }
-      const guildsData = await this.tokensService.findGuildData(req.user.userId)
+      const guildsData =
+        (await this.cacheManager.get(req.user.userId)) ||
+        (await this.tokensService.findGuildData(req.user.userId));
       if (!guildsData) {
-        console.log(`here1`);
-        return false
+        return false;
       }
-      const guildId = req.body.guildId || req.params.guildId
-      const guild = guildsData.find(guild => guild.id === guildId)
+      const guildId = req.body.guildId || req.params.guildId;
+      const guild = guildsData.find((guild) => guild.id === guildId);
       if (!guild) {
-        console.log(`here2`);
-        return false
+        return false;
       }
+      await this.cacheManager.set(req.user.userId, guildsData)
       return true;
     } catch (err) {
       return false;

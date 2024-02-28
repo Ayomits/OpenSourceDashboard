@@ -13,5 +13,6 @@ const controllers = [ModSettingsController]
   imports: [AuthModule ,TypeOrmModule.forFeature(entities)],
   controllers: [...controllers],
   providers: [...services,],
+  exports: [TypeOrmModule]
 })
 export class ModSettingsModule {}

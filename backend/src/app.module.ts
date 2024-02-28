@@ -1,24 +1,17 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { AuthModule } from './modules/auth/auth.module'; // Auth without passport. It's discord api + jwt
-import { CommandsModule } from './modules/CRUD/commands/commands.module';
-import { LogSettingsModule } from './modules/CRUD/settings/log-settings/log-settings.module';
-import { ModSettingsModule } from './modules/CRUD/settings/mod-settings/mod-settings.module';
-import { CommandsGqlModule } from './modules/GraphQL/commands-gql/commands-gql.module';
-import { LogSettingsGqlModule } from './modules/GraphQL//log-settings-gql/log-settings-gql.module';
-import { ModSettingsGqlModule } from './modules/GraphQL/mod-settings-gql/mod-settings-gql.module';
-
-
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuthModule } from "./modules/auth/auth.module"; // Auth without passport. It's discord api + jwt
+import { CommandsModule } from "./modules/CRUD/commands/commands.module";
+import { LogSettingsModule } from "./modules/CRUD/settings/log-settings/log-settings.module";
+import { ModSettingsModule } from "./modules/CRUD/settings/mod-settings/mod-settings.module";
+import { CacheInterceptor, CacheModule } from "@nestjs/cache-manager";
+import { APP_INTERCEPTOR } from "@nestjs/core";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -38,21 +31,22 @@ import { ModSettingsGqlModule } from './modules/GraphQL/mod-settings-gql/mod-set
       inject: [ConfigService],
     }),
 
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver, 
-      playground: true,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 360_000, // miliseconds
+      max: 15
     }),
 
     AuthModule,
     CommandsModule,
     LogSettingsModule,
     ModSettingsModule,
-    CommandsGqlModule,
-    LogSettingsGqlModule,
-    ModSettingsGqlModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

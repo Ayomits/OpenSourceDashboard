@@ -6,6 +6,7 @@ import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "../auth.service";
 import { ExtendedRequest } from "../types/request.types";
 import { TokensService } from "../services/tokens.service";
+import { CacheKey } from "@nestjs/cache-manager";
 
 @Controller('users')
 @ApiTags('users')
@@ -20,6 +21,7 @@ export class UsersController {
   @Get('guildsdata')
   @ApiBearerAuth('jwt')
   @UseGuards(IsAuth)
+  @CacheKey(`users`)
   fetchGuildsData(@Req() req: ExtendedRequest) {
     return this.tokensService.findGuildData(req.user.userId)
   }

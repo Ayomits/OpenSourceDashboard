@@ -19,5 +19,6 @@ const services = [CommandsService, CategoryService]
   ],
   controllers: [...controllers],
   providers: [...services],
+  exports: [TypeOrmModule, AuthModule]
 })
 export class CommandsModule {}
