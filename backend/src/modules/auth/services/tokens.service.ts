@@ -14,6 +14,8 @@ import { Cache } from "@nestjs/cache-manager";
 
 @Injectable()
 export class TokensService {
+  ttl: number = 360_000
+
   constructor(
     @InjectRepository(Oauth2TokensEntity)
     private tokensRepository: Repository<Oauth2TokensEntity>,
@@ -21,38 +23,45 @@ export class TokensService {
   ) {}
 
   async findTokens(userId: string) {
+    const tokensInCache = await this.cacheManager.get(`tokens-${userId}`)
+
+    if (tokensInCache) {
+      return tokensInCache
+    }
+
     return await this.tokensRepository.findOne({
       where: { userId: userId },
     });
   }
 
   async createTokens(data: ITokensDbType) {
-    const existedTokens = await this.findTokens(data.userId);
+    const key = `tokens-${data.userId}`
+    const existedTokens = await this.cacheManager.get(key) || await this.findTokens(data.userId)
 
     if (existedTokens) {
-      existedTokens.accessToken = data.accessToken;
-      existedTokens.refreshToken = data.refreshToken;
       await this.tokensRepository.update(data.userId, {
         refreshToken: data.refreshToken,
         accessToken: data.accessToken,
-      });
-      return await this.findTokens(data.userId);
+      }); // updating tokens in db
+      const newTokens = await this.tokensRepository.find({where: {userId: data.userId}}) // find tokens in db
+      await this.cacheManager.set(key, newTokens, this.ttl) // save tokens in cache
+      return newTokens // return tokens
     }
 
-    const query = this.tokensRepository.create(data);
-    return await this.tokensRepository.save(query);
+    const query = this.tokensRepository.create(data); // create input query
+    const tokens = await this.tokensRepository.save(query); // execute
+    await this.cacheManager.set(key, tokens, this.ttl) // save tokens to cache
+    return tokens // return tokens
   }
 
   async findGuildData(userId: string, count: number = 0) {
-    const dataInCache = await this.cacheManager.get(`user-${userId}`)
+    const dataInCache = await this.cacheManager.get(`guilds-user-${userId}`) // guilds data
     if (dataInCache) {
       return dataInCache
     }
     if (count < 3) {
       try {
-        const tokens = await this.tokensRepository.findOne({
-          where: { userId },
-        });
+        const tokens = await this.findTokens(userId) as Oauth2TokensEntity
         const guilds = await this.fetchGuilds(
           tokens.accessToken,
           tokens.refreshToken
@@ -64,6 +73,7 @@ export class TokensService {
           );
         }
         const sortedGuilds = await this.sortGuilds(guilds);
+        await this.cacheManager.set(`guilds-user-${userId}`, sortedGuilds)
         return sortedGuilds
       } catch (err) {
         return this.retryFunction(() => this.findGuildData(userId, count + 1));
