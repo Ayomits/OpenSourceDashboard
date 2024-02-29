@@ -3,7 +3,6 @@ import { Repository } from "typeorm";
 import { UserEntity } from "../entities/user.entity";
 import { UserType } from "../types/user.types";
 import { InjectRepository } from "@nestjs/typeorm";
-
 import { Request } from "express";
 
 // Work with UserEntity and getting some data from

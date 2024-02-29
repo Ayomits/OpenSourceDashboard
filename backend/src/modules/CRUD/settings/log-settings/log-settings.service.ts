@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { LogSettingEntity } from "./entities/log-setting.entity";
 import { Repository } from "typeorm";
 import { Cache } from "@nestjs/cache-manager";
+import { measureTime } from "src/common/decorators/measureTime.decorator";
 
 // Working with LogSettingsEntity
 // Universal CRUD service
@@ -64,7 +65,7 @@ export class LogSettingsService {
     if (settingsInCache) {
       return settingsInCache as LogSettingEntity;
     }
-
+    
     const settings = await this.repository.findOne({
       where: { guildId: guildId },
     });
@@ -77,8 +78,10 @@ export class LogSettingsService {
     if (!settings) {
       throw new BadRequestException(`Settings for this server doesn't exists`);
     }
+
+    await this.cacheManager.del(`log-settings-${guildId}`)
+
     return await this.repository.delete(guildId);
   }
 
-  
 }

@@ -15,11 +15,13 @@ export class IsAdmin implements CanActivate {
     const req = context.switchToHttp().getRequest() as ExtendedRequest
 
     try {
-      const isAuth = new IsAuth(this.jwtService).canActivate(context)
+      const isAuth = await new IsAuth(this.jwtService).canActivate(context)
       if (!isAuth) {
+        console.log(isAuth);
         return false
       }
-      if (req.user.isAdmin) {
+      if (!req.user.isAdmin) {
+        console.log(req.user.isAdmin);
         return false;
       }
       return true;

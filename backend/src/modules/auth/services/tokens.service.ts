@@ -14,7 +14,7 @@ import { Cache } from "@nestjs/cache-manager";
 
 @Injectable()
 export class TokensService {
-  ttl: number = 360_000
+  ttl: number = 60_000
 
   constructor(
     @InjectRepository(Oauth2TokensEntity)
@@ -73,7 +73,7 @@ export class TokensService {
           );
         }
         const sortedGuilds = await this.sortGuilds(guilds);
-        await this.cacheManager.set(`guilds-user-${userId}`, sortedGuilds)
+        await this.cacheManager.set(`guilds-user-${userId}`, sortedGuilds, this.ttl)
         return sortedGuilds
       } catch (err) {
         return this.retryFunction(() => this.findGuildData(userId, count + 1));

@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CategoryService } from '../services/category.service';
 import { CreateCategoryDto } from '../dto/category/create-category.dto';
 import { IsAdmin } from 'src/modules/auth/guards/isAdmin.guard';
+import { measureTime } from 'src/common/decorators/measureTime.decorator';
 
 @Controller('commands-category')
 @ApiTags('commands-category')
@@ -16,11 +17,13 @@ export class CategoryController {
   }
 
   @Get()
+  @measureTime
   findAll() {
     return this.commandsService.findAll()
   }
 
   @Get('/id/:id')
+  @measureTime
   findById(@Param('id') id: string) {
     return this.commandsService.findById(+id)
 

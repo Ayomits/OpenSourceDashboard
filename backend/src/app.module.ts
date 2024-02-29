@@ -34,7 +34,6 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
     CacheModule.register({
       isGlobal: true,
       ttl: 360_000, // miliseconds
-      max: 15
     }),
 
     AuthModule,

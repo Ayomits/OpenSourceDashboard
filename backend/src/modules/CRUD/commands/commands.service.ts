@@ -4,43 +4,74 @@ import { CategoryService } from './services/category.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommandEntity } from './entities/command.entity';
 import { Repository } from 'typeorm';
-
+import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class CommandsService {
+  ttl: number = 360_000
+
   constructor(
-      private readonly categoryService: CategoryService,
-      @InjectRepository(CommandEntity) private commandRepository: Repository<CommandEntity>
-    ) {}
+    private readonly categoryService: CategoryService,
+    @InjectRepository(CommandEntity) private commandRepository: Repository<CommandEntity>,
+    private cacheManager: Cache
+  ) {}
 
   async create(createCommandDto: CreateCommandDto) {
-    const existedCommand = await this.commandRepository.findOne({where: {name: createCommandDto.name}})
+    const existedCommand = await this.commandRepository.findOne({ where: { name: createCommandDto.name } })
     if (existedCommand) {
       throw new BadRequestException(`This command already exists`)
     }
     const category = await this.categoryService.findById(createCommandDto.categoryID)
     if (!category) {
-      throw new BadRequestException(`Category with this name doesn't exist`)
+      throw new BadRequestException(`Category with this id doesn't exist`)
     }
-    const query = await this.commandRepository.create({...createCommandDto, category: category})
-
-    return await this.commandRepository.save(query)
+    const query = await this.commandRepository.create({ ...createCommandDto, category: category })
+  
+    const createdCommand = await this.commandRepository.save(query);
+    await this.cacheManager.del(`commands-all`);
+  
+    return createdCommand;
   }
 
   async findAll() {
-    return this.commandRepository.find({relations: ['category']})
+    const cachedCommands = await this.cacheManager.get(`commands-all`);
+    if (cachedCommands) {
+      return cachedCommands;
+    }
+
+    const commands = await this.commandRepository.find({ relations: ['category'] });
+    await this.cacheManager.set(`commands-all`, commands, );
+
+    return commands;
   }
 
   async findById(id: number) {
-    return this.commandRepository.findOne({where: { id } ,relations: ['category']})
+    const cachedCommand = await this.cacheManager.get(`command-id-${id}`);
+    if (cachedCommand) {
+      return cachedCommand;
+    }
+
+    const command = await this.commandRepository.findOne({ where: { id }, relations: ['category'] });
+    await this.cacheManager.set(`command-id-${id}`, command, this.ttl);
+
+    return command;
   }
 
   async findByCategory(categoryID: number) {
-    const category = await this.categoryService.findById(categoryID)
+    const category = await this.categoryService.findById(categoryID);
     if (!category) {
-      throw new BadRequestException(`This category doesn't exist`)
+      throw new BadRequestException(`Category with this id doesn't exist`);
     }
-    return this.commandRepository.findOne({where: {category}})
+
+    const cachedCommand = await this.cacheManager.get(`command-category-${categoryID}`);
+    if (cachedCommand) {
+      return cachedCommand;
+    }
+
+    const command = await this.commandRepository.findOne({ where: { category }, relations: ['category'] });
+    await this.cacheManager.set(`command-category-${categoryID}`, command, this.ttl);
+
+    return command;
   }
 
   async update(id: number, updateCommandDto: CreateCommandDto) {
@@ -58,7 +89,10 @@ export class CommandsService {
       aliases: updateCommandDto.aliases,
       category: category
     })
-    const newCommand = await this.findById(id)
+
+    await this.cacheManager.del(`command-id-${id}`);
+
+    const newCommand = await this.findById(id);
     return {
       oldCommand: existedCommand,
       newCommand: newCommand
@@ -70,6 +104,8 @@ export class CommandsService {
     if (!existedCommand){
       throw new BadRequestException(`This command doesn't exist`)
     }
-    return await this.commandRepository.delete(id)
+
+    await this.cacheManager.del(`command-id-${id}`);
+    return await this.commandRepository.delete(id);
   }
 }
