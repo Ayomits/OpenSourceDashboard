@@ -7,6 +7,7 @@ import { LogSettingsModule } from "./modules/CRUD/settings/log-settings/log-sett
 import { ModSettingsModule } from "./modules/CRUD/settings/mod-settings/mod-settings.module";
 import { CacheInterceptor, CacheModule } from "@nestjs/cache-manager";
 import { APP_INTERCEPTOR } from "@nestjs/core";
+import { CustomCacheInterceptor } from "./interceptors/cache.interceptors";
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
 
     CacheModule.register({
       isGlobal: true,
-      ttl: 360_000, // miliseconds
+
     }),
 
     AuthModule,
@@ -44,7 +45,7 @@ import { APP_INTERCEPTOR } from "@nestjs/core";
   providers: [
     {
       provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
+      useClass: CustomCacheInterceptor,
     },
   ],
 })

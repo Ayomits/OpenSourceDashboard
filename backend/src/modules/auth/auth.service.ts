@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './services/user.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import axios from 'axios';
 import { DataHeadersType, TokensResponseType } from './types/discordApi.types';
 import { UserEntity } from './entities/user.entity';
@@ -45,9 +45,7 @@ export class AuthService {
       const user = await this.userService.createOrFindUser({userId: userData.id, avatar: userData.avatar, username: userData.username}) // create or find user
       const jwt = await this.generateJwt(user) // generate JWT token by UserEntity
       await this.tokensService.createTokens({userId: user.userId, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken}) // save discord API tokens
-      return {
-        "accessToken": jwt,
-      }
+      return jwt
     } catch(err) {
       throw new BadRequestException(err)
     }

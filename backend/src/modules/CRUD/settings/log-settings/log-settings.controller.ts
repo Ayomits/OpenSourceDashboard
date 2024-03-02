@@ -24,7 +24,7 @@ export class LogSettingsController {
   constructor(private readonly logSettingsService: LogSettingsService) {}
 
   @Post(`create`) // This method Create Or Update guild log-settings in DB
-  @UseGuards(IsAuth)
+  @UseGuards(IsYourServer)
   create(@Body() createLogSettingDto: CreateLogSettingDto) {
     return this.logSettingsService.create(createLogSettingDto);
   }

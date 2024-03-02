@@ -12,7 +12,7 @@ export class ModSettingsController {
   constructor(private readonly modSettingsService: ModSettingsService) {}
 
   @Post(`create`) // This method Create Or Update guild log-settings in DB
-  @UseGuards(IsAuth)
+  @UseGuards(IsYourServer)
   create(@Body() createLogSettingDto: CreateModSettingDto) {
     return this.modSettingsService.create(createLogSettingDto);
   }
